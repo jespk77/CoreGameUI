@@ -154,7 +154,7 @@ void USelectionInputWidget::AddCustomElements() {
 	);
 
 	Container->AddSlot().Padding(5.f).FillWidth(1.f).AttachWidget(
-		SAssignNew(Text, STextBlock)
+		SAssignNew(Text, STextBlock).Justification(ETextJustify::Center)
 	);
 
 	Container->AddSlot().Padding(5.f).AutoWidth().AttachWidget(

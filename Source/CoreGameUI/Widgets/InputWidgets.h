@@ -159,7 +159,7 @@ public:
 	UFUNCTION(Category = "Input Value", BlueprintCallable)
 	virtual int32 SetValue(const int32 newValue);
 	UFUNCTION(Category = "Input Value", BlueprintCallable)
-	const FText& GetSelectedEntry() const { return Entries.IsValidIndex(Value) ? Entries[Value] : FText::GetEmpty(); }
+	const FText& GetSelectedEntry() const { return Entries.IsValidIndex(GetValue()) ? Entries[GetValue()] : FText::GetEmpty(); }
 
 	UPROPERTY(Category = "Events", BlueprintAssignable)
 	FIndexUpdated OnValueUpdated;

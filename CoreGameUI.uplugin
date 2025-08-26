@@ -1,28 +1,34 @@
 {
-     "FileVersion": 3,
-     "Version": 1.0,
-     "VersionName": "1.0",
-     "FriendlyName": "CoreGameUI",
-     "Description": "",
-     "Category": "Other",
-     "CreatedBy": "jespk77",
-     "CreatedByURL": "",
-     "MarketplaceURL": "",
-     "SupportURL": "",
-     "CanContainContent": true,
-     "IsBetaVersion": false,
-     "IsExperimentalVersion": false,
-     "Installed": false,
-     "Modules": [
-          {
-               "Name": "CoreGameUI",
-               "Type": "Runtime",
-               "LoadingPhase": "Default"
-          },
-          {
-               "Name": "CoreGameUI",
-               "Type": "Editor",
-               "LoadingPhase": "Default"
-          }
-     ]
+    "FileVersion": 3,
+    "Version": 1.0,
+    "VersionName": "1.0",
+    "FriendlyName": "CoreGameUI",
+    "Description": "",
+    "Category": "Other",
+    "CreatedBy": "jespk77",
+    "CreatedByURL": "",
+    "MarketplaceURL": "",
+    "SupportURL": "",
+    "CanContainContent": true,
+    "IsBetaVersion": false,
+    "IsExperimentalVersion": false,
+    "Installed": false,
+    "Modules": [
+        {
+            "Name": "CoreGameUI",
+            "Type": "Runtime",
+            "LoadingPhase": "Default"
+        },
+        {
+            "Name": "CoreGameUI",
+            "Type": "Editor",
+            "LoadingPhase": "Default"
+        }
+    ],
+    "Plugins": [
+        {
+            "Name": "BlueprintUtilities",
+            "Enabled": true
+        }
+    ]
 }

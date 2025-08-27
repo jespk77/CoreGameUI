@@ -41,7 +41,12 @@ protected:
 	FString PropertyName;
 
 public:
+	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadWrite)
+	bool UpdateWidgetOnTick = false;
+
 	virtual void NativePreConstruct() override;
+	virtual void NativeTick(const FGeometry& geometry, float delta) override;
+
 	virtual bool GetValue() const override { return GetPropertyValue<bool>(); }
 	virtual bool SetValue(const bool newValue) override;
 
@@ -66,7 +71,12 @@ protected:
 	FString PropertyName;
 
 public:
+	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadWrite)
+	bool UpdateWidgetOnTick = false;
+
 	virtual void NativePreConstruct() override;
+	virtual void NativeTick(const FGeometry& geometry, float delta) override;
+
 	virtual float GetValue() const override { return GetPropertyValue<float>(); }
 	virtual float SetValue(const float newValue) override;
 
@@ -93,7 +103,12 @@ protected:
 	FString PropertyName;
 
 public:
+	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadWrite)
+	bool UpdateWidgetOnTick = false;
+
 	virtual void NativePreConstruct() override;
+	virtual void NativeTick(const FGeometry& geometry, float delta) override;
+
 	virtual uint8 GetValue_uint8() const { return GetPropertyValue<uint8>(); }
 	virtual int32 GetValue() const override { return GetValue_uint8(); }
 	virtual int32 SetValue(const int32 newValue) override { return SetValue_uint8((uint8)FMath::Clamp(newValue, 0, 255)); }

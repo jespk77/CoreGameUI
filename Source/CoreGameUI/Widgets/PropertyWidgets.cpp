@@ -67,6 +67,11 @@ void UBooleanPropertyWidget::NativePreConstruct() {
 	Super::NativePreConstruct();
 }
 
+void UBooleanPropertyWidget::NativeTick(const FGeometry& geometry, float delta) {
+	Super::NativeTick(geometry, delta);
+	if (UpdateWidgetOnTick) UpdateWidget();
+}
+
 bool UBooleanPropertyWidget::SetValue(const bool newValue) {
 	if (SetPropertyValue(newValue)) {
 		UpdateWidget();
@@ -91,6 +96,11 @@ TArray<FString> UNumericPropertyWidget::GetPropertiesForObject() const {
 void UNumericPropertyWidget::NativePreConstruct() {
 	if (DisplayName.IsEmpty()) DisplayName = FText::FromString(PropertyName);
 	Super::NativePreConstruct();
+}
+
+void UNumericPropertyWidget::NativeTick(const FGeometry& geometry, float delta) {
+	Super::NativeTick(geometry, delta);
+	if (UpdateWidgetOnTick) UpdateWidget();
 }
 
 float UNumericPropertyWidget::SetValue(const float newValue) {
@@ -130,6 +140,11 @@ void USelectionPropertyWidget::NativePreConstruct() {
 	if (!PropertyObject) SetPropertyFromName<FEnumProperty>(PropertyClass, PropertyName);
 	UpdateEnumProperty();
 	Super::NativePreConstruct();
+}
+
+void USelectionPropertyWidget::NativeTick(const FGeometry& geometry, float delta) {
+	Super::NativeTick(geometry, delta);
+	if (UpdateWidgetOnTick) UpdateWidget();
 }
 
 uint8 USelectionPropertyWidget::SetValue_uint8(const uint8 newValue) {

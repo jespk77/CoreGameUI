@@ -1,5 +1,6 @@
 #include "InputWidgets.h"
 #include "Widgets/Input/SSlider.h"
+#include "CoreGameUI/Elements/ToggleableButton.h"
 
 TSharedRef<SWidget> UInputWidgetBase::RebuildWidget() {
 	SAssignNew(Container, SHorizontalBox) +
@@ -30,8 +31,8 @@ void UInputWidgetBase::UpdateWidget() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void UBooleanInputWidget::UpdateWidget() {
-	Super::UpdateWidget();
 	if (Checkbox) Checkbox->SetIsChecked(GetValue() ? ECheckBoxState::Checked : ECheckBoxState::Unchecked);
+	Super::UpdateWidget();
 }
 
 void UBooleanInputWidget::AddCustomElements() {
@@ -57,9 +58,9 @@ bool UBooleanInputWidget::SetValue(const bool newValue) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void UNumericInputWidget::UpdateWidget() {
-	Super::UpdateWidget();
 	if (Slider) Slider->SetValue(GetValue());
 	if (Text) Text->SetText(FText::FromString(FString::SanitizeFloat(GetValue())));
+	Super::UpdateWidget();
 }
 
 void UNumericInputWidget::AddCustomElements() {
@@ -112,10 +113,10 @@ float UNumericInputWidget::SetStep(const float newStep) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void UToggleNumericInputWidget::UpdateWidget() {
-	Super::UpdateWidget();
 	if (EditCheckbox) EditCheckbox->SetIsChecked(GetEnabled() ? ECheckBoxState::Checked : ECheckBoxState::Unchecked);
 	if (Slider) Slider->SetEnabled(GetEnabled());
 	if (Text) Text->SetEnabled(GetEnabled());
+	Super::UpdateWidget();
 }
 
 void UToggleNumericInputWidget::AddCustomElements() {
@@ -143,8 +144,8 @@ bool UToggleNumericInputWidget::SetEnabled(const bool isEnabled) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void USelectionInputWidget::UpdateWidget() {
-	Super::UpdateWidget();
 	if (Text) Text->SetText(GetSelectedEntry());
+	Super::UpdateWidget();
 }
 
 void USelectionInputWidget::AddCustomElements() {
@@ -179,20 +180,17 @@ int32 USelectionInputWidget::SetValue(const int32 newValue) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void UButtonSelectionInputWidget::UpdateWidget() {
-	Super::UpdateWidget();
-
 	int32 index = 0;
-	for (const TSharedPtr<SButton>& button : Buttons) {
-		button->SetButtonStyle(Value == index++ ? &SelectedStyle : &UnselectedStyle);
-	}
+	for (const TSharedPtr<SToggleableButton>& button : Buttons)
+		button->SetSelected(Value == index++);
+	Super::UpdateWidget();
 }
 
 void UButtonSelectionInputWidget::AddCustomElements() {
 	for (const FText& entry : Entries) {
-		TSharedPtr<SButton>& button = Buttons.AddZeroed_GetRef();
+		TSharedPtr<SToggleableButton>& button = Buttons.AddZeroed_GetRef();
 		Container->AddSlot().Padding(5.f).AutoWidth().AttachWidget(
-			SAssignNew(button, SButton).Text(entry)
-			.ButtonStyle(&UnselectedStyle)
+			SAssignNew(button, SToggleableButton).Text(entry)
 		);
 	}
 }

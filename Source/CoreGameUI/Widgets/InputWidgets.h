@@ -11,8 +11,8 @@ protected:
 	TSharedPtr<SHorizontalBox> Container;
 	TSharedPtr<STextBlock> Label;
 
-	virtual TSharedRef<SWidget> RebuildWidget() override;
-	virtual void ReleaseSlateResources(bool releaseChildren) override;
+	virtual TSharedRef<SWidget> RebuildWidget() final override;
+	virtual void ReleaseSlateResources(bool releaseChildren) final override;
 
 	virtual void NativePreConstruct() override;
 	virtual void AddCustomElements() { }
@@ -167,19 +167,16 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+class SToggleableButton;
+
 UCLASS(ClassGroup = "Input Widgets")
 class COREGAMEUI_API UButtonSelectionInputWidget : public USelectionInputWidget {
 	GENERATED_BODY()
 
 protected:
-	TArray<TSharedPtr<SButton>> Buttons;
+	TArray<TSharedPtr<SToggleableButton>> Buttons;
 
 	virtual void UpdateWidget() override;
-
-	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly)
-	FButtonStyle UnselectedStyle;
-	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly)
-	FButtonStyle SelectedStyle;
 
 	virtual void AddCustomElements() override;
 	virtual void ReleaseCustomElements() override;

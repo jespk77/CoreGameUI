@@ -22,4 +22,11 @@ public:
 	TSubclassOf<UCoreGameWidget> MainGameWidgetClass;
 	UPROPERTY(Category = "References", BlueprintReadOnly)
 	TObjectPtr<UCoreGameWidget> MainGameWidget;
+
+	UFUNCTION(BlueprintCallable)
+	virtual inline bool IsMainMenuVisible() const;
+	UFUNCTION(BlueprintCallable)
+	virtual inline void ToggleMainMenuVisible() { SetMainMenuVisible(!IsMainMenuVisible()); }
+	UFUNCTION(BlueprintCallable)
+	virtual void SetMainMenuVisible(bool visible);
 };

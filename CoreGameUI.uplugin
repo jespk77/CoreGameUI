@@ -18,11 +18,6 @@
             "Name": "CoreGameUI",
             "Type": "Runtime",
             "LoadingPhase": "Default"
-        },
-        {
-            "Name": "CoreGameUI",
-            "Type": "Editor",
-            "LoadingPhase": "Default"
         }
     ],
     "Plugins": [

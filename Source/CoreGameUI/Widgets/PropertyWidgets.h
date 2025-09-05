@@ -17,7 +17,7 @@ protected:
 	template<typename PropertyType = FProperty>
 	static void GetPropertyNamesForObjectWithType(UClass* class_, TArray<FString>& names);
 
-	UObject* PropertyObject;
+	TArray<UObject*> PropertyObjects;
 	FProperty* EditProperty;
 
 	template<typename PropertyType = FProperty>
@@ -31,10 +31,15 @@ protected:
 
 public:
 	void SetEditableObject(UObject* obj, const FString& propertyName);
+	void SetEditableObjects(const TArray<UObject*>& objects, const FString& propertyName);
+
 	void SetEditableObject(UObject* obj, FProperty* property);
+	void SetEditableObjects(const TArray<UObject*>& objects, FProperty* property);
 
 	UFUNCTION(Category = "Input Value", BlueprintNativeEvent)
 	void SetObject(UObject* obj);
+	UFUNCTION(Category = "Input Value", BlueprintNativeEvent)
+	void SetObjects(const TArray<UObject*>& objects);
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,6 +71,7 @@ public:
 	virtual bool GetValue() const override { return GetPropertyValue<bool>(); }
 	virtual bool SetValue(const bool newValue) override;
 	virtual void SetObject_Implementation(UObject* obj) override;
+	virtual void SetObjects_Implementation(const TArray<UObject*>& objects) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -97,6 +103,7 @@ public:
 	virtual float GetValue() const override { return GetPropertyValue<float>(); }
 	virtual float SetValue(const float newValue) override;
 	virtual void SetObject_Implementation(UObject* obj) override;
+	virtual void SetObjects_Implementation(const TArray<UObject*>& objects) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,6 +140,7 @@ public:
 	virtual int32 SetValue(const int32 newValue) override { return SetValue_uint8((uint8)FMath::Clamp(newValue, 0, 255)); }
 	virtual uint8 SetValue_uint8(const uint8 newValue);
 	virtual void SetObject_Implementation(UObject* obj) override;
+	virtual void SetObjects_Implementation(const TArray<UObject*>& objects) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -97,7 +97,7 @@ float UNumericInputWidget::SetMinimum(const float min) {
 	return GetMinimum();
 }
 
-float UNumericInputWidget::SetMaximum(const float max) {w
+float UNumericInputWidget::SetMaximum(const float max) {
 	Maximum = FMath::Max(max, GetMinimum() + GetStep());
 	if (Slider) Slider->SetMinAndMaxValues(GetMinimum(), GetMaximum());
 	SetValue(Value);

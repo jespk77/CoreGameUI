@@ -97,7 +97,7 @@ float UNumericInputWidget::SetMinimum(const float min) {
 	return GetMinimum();
 }
 
-float UNumericInputWidget::SetMaximum(const float max) {
+float UNumericInputWidget::SetMaximum(const float max) {w
 	Maximum = FMath::Max(max, GetMinimum() + GetStep());
 	if (Slider) Slider->SetMinAndMaxValues(GetMinimum(), GetMaximum());
 	SetValue(Value);
@@ -191,7 +191,7 @@ void UButtonSelectionInputWidget::AddCustomElements() {
 		TSharedPtr<SToggleableButton>& button = Buttons.AddZeroed_GetRef();
 		Container->AddSlot().Padding(5.f).AutoWidth().AttachWidget(
 			SAssignNew(button, SToggleableButton).Text(entry)
-		);
+			.OnClicked_Lambda([&]() { SetValue(Entries.IndexOfByPredicate([&](const FText& text) { return text.EqualToCaseIgnored(entry); })); return FReply::Handled(); }));
 	}
 }
 

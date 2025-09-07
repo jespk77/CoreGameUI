@@ -49,15 +49,14 @@ class COREGAMEUI_API UBooleanPropertyWidget : public UBooleanInputWidget, public
 	GENERATED_BODY()
 
 private:
-#if WITH_EDITORONLY_DATA
 	UFUNCTION() TArray<FString> GetPropertiesForObject() const;
-#endif
 
 protected:
 #if WITH_EDITORONLY_DATA
 	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly)
 	UClass* PropertyClass;
 #endif
+
 	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly, meta = (GetOptions = GetPropertiesForObject))
 	FString PropertyName;
 
@@ -81,9 +80,7 @@ class COREGAMEUI_API UNumericPropertyWidget : public UNumericInputWidget, public
 	GENERATED_BODY()
 
 private:
-#if WITH_EDITORONLY_DATA
 	UFUNCTION() TArray<FString> GetPropertiesForObject() const;
-#endif
 
 protected:
 #if WITH_EDITORONLY_DATA
@@ -113,9 +110,7 @@ class COREGAMEUI_API USelectionPropertyWidget : public USelectionInputWidget, pu
 	GENERATED_BODY()
 
 private:
-#if WITH_EDITORONLY_DATA
 	UFUNCTION() TArray<FString> GetPropertiesForObject() const;
-#endif
 
 protected:
 	UEnum* EnumProperty;
@@ -125,6 +120,7 @@ protected:
 	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly)
 	UClass* PropertyClass;
 #endif
+
 	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly, meta = (GetOptions = GetPropertiesForObject))
 	FString PropertyName;
 

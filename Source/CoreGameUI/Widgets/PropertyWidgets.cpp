@@ -78,13 +78,13 @@ void IPropertyObjectEditor::SetEditableObjects(const TArray<UObject*>& objects, 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if WITH_EDITORONLY_DATA
 TArray<FString> UBooleanPropertyWidget::GetPropertiesForObject() const {
 	TArray<FString> names;
+#if WITH_EDITORONLY_DATA
 	GetPropertyNamesForObjectWithType<FBoolProperty>(PropertyClass, names);
+#endif
 	return names;
 }
-#endif
 
 void UBooleanPropertyWidget::NativePreConstruct() {
 	if (DisplayName.IsEmpty()) DisplayName = FText::FromString(PropertyName);
@@ -116,13 +116,13 @@ void UBooleanPropertyWidget::SetObjects_Implementation(const TArray<UObject*>& o
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if WITH_EDITORONLY_DATA
 TArray<FString> UNumericPropertyWidget::GetPropertiesForObject() const {
 	TArray<FString> names;
+#if WITH_EDITORONLY_DATA
 	GetPropertyNamesForObjectWithType<FNumericProperty>(PropertyClass, names);
+#endif
 	return names;
 }
-#endif
 
 void UNumericPropertyWidget::NativePreConstruct() {
 	if (DisplayName.IsEmpty()) DisplayName = FText::FromString(PropertyName);
@@ -166,17 +166,19 @@ void USelectionPropertyWidget::UpdateEnumProperty() {
 	}
 }
 
-#if WITH_EDITORONLY_DATA
 TArray<FString> USelectionPropertyWidget::GetPropertiesForObject() const {
 	TArray<FString> names;
+#if WITH_EDITORONLY_DATA
 	GetPropertyNamesForObjectWithType<FEnumProperty>(PropertyClass, names);
+#endif
 	return names;
 }
-#endif
 
 void USelectionPropertyWidget::NativePreConstruct() {
 	if (DisplayName.IsEmpty()) DisplayName = FText::FromString(PropertyName);
+#if WITH_EDITORONLY_DATA
 	if (!PropertyObjects.IsEmpty()) EditProperty = GetPropertyFromName<FEnumProperty>(PropertyClass, PropertyName);
+#endif
 	UpdateEnumProperty();
 	Super::NativePreConstruct();
 }

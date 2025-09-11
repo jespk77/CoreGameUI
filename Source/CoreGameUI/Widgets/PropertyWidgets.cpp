@@ -242,8 +242,6 @@ void UButtonSelectionPropertyWidget::UpdateWidget() {
 	}
 }
 
-void UButtonSelectionPropertyWidget::AddCustomElements() { }
-
 void UButtonSelectionPropertyWidget::ReleaseCustomElements() {
 	Buttons.Reset();
 }

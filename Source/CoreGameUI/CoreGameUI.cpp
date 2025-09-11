@@ -2,13 +2,9 @@
 
 #define LOCTEXT_NAMESPACE "FCoreGameUIModule"
 
-void FCoreGameUIModule::StartupModule() {
+void FCoreGameUIModule::StartupModule() { }
 
-}
-
-void FCoreGameUIModule::ShutdownModule() {
-
-}
+void FCoreGameUIModule::ShutdownModule() { }
 
 #undef LOCTEXT_NAMESPACE
 

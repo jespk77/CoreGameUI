@@ -151,6 +151,6 @@ protected:
 	virtual void UpdateEnumProperty() override;
 	virtual void UpdateWidget() override;
 
-	virtual void AddCustomElements() override;
+	virtual void AddCustomElements() override { }
 	virtual void ReleaseCustomElements() override;
 };

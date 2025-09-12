@@ -64,7 +64,7 @@ void UNumericInputWidget::UpdateWidget() {
 }
 
 void UNumericInputWidget::AddCustomElements() {
-	Container->AddSlot().Padding(5.f).FillWidth(1).AttachWidget(
+	Container->AddSlot().Padding(5.f).FillWidth(1).MinWidth(100.f).AttachWidget(
 		SAssignNew(Slider, SSlider)
 		.MinValue(GetMinimum()).MaxValue(GetMaximum()).StepSize(GetStep()).MouseUsesStep(true)
 		.OnValueChanged_Lambda([&](const float value) { SetValue(value); })

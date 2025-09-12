@@ -1,6 +1,9 @@
 #include "WorldObjectWidget.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
-#if WITH_EDITOR
+
+#define LOCATION_DEBUG 0
+
+#if WITH_EDITOR && LOCATION_DEBUG
 #include "Components/LineBatchComponent.h"
 #endif
 
@@ -27,8 +30,10 @@ void UWorldObjectWidget::NativeTick(const FGeometry& geometry, float delta) {
 		UpdateWidgetTransform(ScreenLocation);
 	}
 
-#if WITH_EDITOR
+#if WITH_EDITOR && LOCATION_DEBUG
 	ULineBatchComponent* batcher = GetWorld()->GetLineBatcher(UWorld::ELineBatcherType::World);
 	batcher->DrawPoint(WorldLocation, FColor::Magenta, 20.f, 1, 1.f);
 #endif
 }
+
+#undef LOCATION_DEBUG

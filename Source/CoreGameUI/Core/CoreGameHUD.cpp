@@ -5,14 +5,15 @@
 void ACoreGameHUD::BeginPlay() {
 	Super::BeginPlay();
 
-	if (MainGameWidgetClass) {
-		MainGameWidget = CreateWidget<UCoreGameWidget>(GetOwningPlayerController(), MainGameWidgetClass, "MainGameWidget");
-		MainGameWidget->AddToViewport(0);
+	for (const TSoftClassPtr<UCoreGameWidget>& widgetClass : MainGameWidgetClasses) {
+		UCoreGameWidget* widget = CreateWidget<UCoreGameWidget>(GetOwningPlayerController(), widgetClass.LoadSynchronous());
+		widget->AddToViewport(widget->ZOrder);
+		MainGameWidgets.Add(widget);
 	}
 
 	if (MainMenuWidgetClass) {
-		MainMenuWidget = CreateWidget<UCoreMainMenuWidget>(GetOwningPlayerController(), MainMenuWidgetClass, "MainMenuWidget");
-		MainMenuWidget->AddToViewport(1);
+		MainMenuWidget = CreateWidget<UCoreMainMenuWidget>(GetOwningPlayerController(), MainMenuWidgetClass.LoadSynchronous(), "MainMenuWidget");
+		MainMenuWidget->AddToViewport(MainMenuWidget->ZOrder);
 	}
 }
 

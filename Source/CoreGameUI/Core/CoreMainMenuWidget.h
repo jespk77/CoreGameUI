@@ -15,13 +15,15 @@ protected:
 	virtual void NativeDestruct() override;
 
 public:
+	UPROPERTY(Category = "Widget Properties", EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0))
+	int32 ZOrder = 2;
+
 	UFUNCTION(Category = "Common Controls", BlueprintCallable)
 	virtual bool IsOpen() const { return IsVisible(); }
 	UFUNCTION(Category = "Common Controls", BlueprintCallable)
 	virtual void OpenMenu();
 	UFUNCTION(Category = "Common Controls", BlueprintCallable)
 	virtual void CloseMenu();
-
 	UFUNCTION(Category = "Common Controls", BlueprintCallable)
 	virtual void ExitGame(bool force = false);
 };

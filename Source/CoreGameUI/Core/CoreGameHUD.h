@@ -14,14 +14,14 @@ public:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(Category = "Widget Types", EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<UCoreMainMenuWidget> MainMenuWidgetClass;
+	TSoftClassPtr<UCoreMainMenuWidget> MainMenuWidgetClass;
 	UPROPERTY(Category = "References", BlueprintReadOnly)
 	TObjectPtr<UCoreMainMenuWidget> MainMenuWidget;
 
 	UPROPERTY(Category = "Widget Types", EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<UCoreGameWidget> MainGameWidgetClass;
+	TArray<TSoftClassPtr<UCoreGameWidget>> MainGameWidgetClasses;
 	UPROPERTY(Category = "References", BlueprintReadOnly)
-	TObjectPtr<UCoreGameWidget> MainGameWidget;
+	TArray<TObjectPtr<UCoreGameWidget>> MainGameWidgets;
 
 	UFUNCTION(BlueprintCallable)
 	virtual inline bool IsMainMenuVisible() const;

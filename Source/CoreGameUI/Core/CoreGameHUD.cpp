@@ -11,7 +11,7 @@ void ACoreGameHUD::BeginPlay() {
 		MainGameWidgets.Add(widget);
 	}
 
-	if (MainMenuWidgetClass) {
+	if (!MainMenuWidgetClass.IsNull()) {
 		MainMenuWidget = CreateWidget<UCoreMainMenuWidget>(GetOwningPlayerController(), MainMenuWidgetClass.LoadSynchronous(), "MainMenuWidget");
 		MainMenuWidget->AddToViewport(MainMenuWidget->ZOrder);
 	}

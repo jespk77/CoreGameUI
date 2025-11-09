@@ -50,30 +50,55 @@ bool IPropertyObjectEditor::SetPropertyValue(const ValueType& newValue) {
 	return result;
 }
 
-void IPropertyObjectEditor::SetEditableObject(UObject* obj, const FString& propertyName) {
-	if (obj) SetEditableObject(obj, GetPropertyFromName(obj->GetClass(), propertyName));
+template<typename ValueType>
+ValueType IPropertyObjectEditor::GetControlValue() const {
+	ValueType* value = ControlProperty ? ControlProperty->ContainerPtrToValuePtr<ValueType>(PropertyObjects[0]) : nullptr;
+	return value ? *value : ValueType();
+}
+
+template<typename ValueType>
+bool IPropertyObjectEditor::SetControlValue(const ValueType& newValue) {
+	if (!ControlProperty) return false;
+
+	bool result = false;
+	for (UObject* obj : PropertyObjects) {
+		ValueType* value = ControlProperty->ContainerPtrToValuePtr<ValueType>(obj);
+		if (value) {
+			const ValueType previousValue = *value;
+			*value = newValue;
+			if (previousValue != newValue) result = true;
+		}
+	}
+
+	return result;
+}
+
+void IPropertyObjectEditor::SetEditableObject(UObject* obj, const FString& propertyName, const FString* controlPropertyName) {
+	if (obj) SetEditableObject(obj, GetPropertyFromName(obj->GetClass(), propertyName), controlPropertyName ? GetPropertyFromName(obj->GetClass(), *controlPropertyName) : nullptr);
 	else SetEditableObject(obj, nullptr);
 }
 
-void IPropertyObjectEditor::SetEditableObjects(const TArray<UObject*>& objects, const FString& propertyName) {
+void IPropertyObjectEditor::SetEditableObjects(const TArray<UObject*>& objects, const FString& propertyName, const FString* controlPropertyName) {
 	UClass* class_ = !objects.IsEmpty() ? objects[0]->GetClass() : nullptr;
-	SetEditableObjects(objects, GetPropertyFromName(class_, propertyName));
+	SetEditableObjects(objects, GetPropertyFromName(class_, propertyName), controlPropertyName ? GetPropertyFromName(class_, *controlPropertyName) : nullptr);
 }
 
-void IPropertyObjectEditor::SetEditableObject(UObject* obj, FProperty* property) {
+void IPropertyObjectEditor::SetEditableObject(UObject* obj, FProperty* property, FProperty* controlProperty) {
 	if (obj && !ensureAlwaysMsgf(property, TEXT("'property' can only be null when the object is null"))) return;
 
 	PropertyObjects.Reset(1);
 	PropertyObjects.Add(obj);
 	EditProperty = property;
+	ControlProperty = controlProperty;
 }
 
-void IPropertyObjectEditor::SetEditableObjects(const TArray<UObject*>& objects, FProperty* property) {
+void IPropertyObjectEditor::SetEditableObjects(const TArray<UObject*>& objects, FProperty* property, FProperty* controlProperty) {
 	if (!objects.IsEmpty() && !ensureAlwaysMsgf(property, TEXT("'property' can only be null when the object is null"))) return;
 
 	PropertyObjects.Reset(objects.Num());
 	PropertyObjects.Append(objects);
 	EditProperty = property;
+	ControlProperty = controlProperty;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -155,6 +180,61 @@ void UNumericPropertyWidget::SetObjects_Implementation(const TArray<UObject*>& o
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+TArray<FString> UToggleNumericPropertyWidget::GetPropertiesForObject() const {
+	TArray<FString> names;
+#if WITH_EDITORONLY_DATA
+	GetPropertyNamesForObjectWithType<FNumericProperty>(PropertyClass, names);
+#endif
+	return names;
+}
+
+TArray<FString> UToggleNumericPropertyWidget::GetConditionalPropertiesForObject() const {
+	TArray<FString> names;
+#if WITH_EDITORONLY_DATA
+	GetPropertyNamesForObjectWithType<FBoolProperty>(PropertyClass, names);
+#endif
+	return names;
+}
+
+void UToggleNumericPropertyWidget::NativePreConstruct() {
+	if (DisplayName.IsEmpty()) DisplayName = FText::FromString(PropertyName);
+	Super::NativePreConstruct();
+}
+
+void UToggleNumericPropertyWidget::NativeTick(const FGeometry& geometry, float delta) {
+	Super::NativeTick(geometry, delta);
+	if (UpdateWidgetOnTick) UpdateWidget();
+}
+
+float UToggleNumericPropertyWidget::SetValue(const float newValue) {
+	const float value = FMath::Clamp(newValue, GetMinimum(), GetMaximum());
+	if (SetPropertyValue(value)) {
+		UpdateWidget();
+		OnValueUpdated.Broadcast(value);
+	}
+	return GetValue();
+}
+
+bool UToggleNumericPropertyWidget::SetEnabled(bool enabled) {
+	if (SetControlValue(enabled)) {
+		UpdateWidget();
+		OnEnabledUpdated.Broadcast(enabled);
+	}
+	return GetEnabled();
+}
+
+void UToggleNumericPropertyWidget::SetObject_Implementation(UObject* obj) {
+	SetEditableObject(obj, PropertyName, &EditConditionPropertyName);
+	UpdateWidget();
+}
+
+void UToggleNumericPropertyWidget::SetObjects_Implementation(const TArray<UObject*>& objects) {
+	SetEditableObjects(objects, PropertyName, &EditConditionPropertyName);
+	UpdateWidget();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 void USelectionPropertyWidget::UpdateEnumProperty() {
 	EnumProperty = nullptr;
 	if (EditProperty) EnumProperty = UClassUtilities::FindEnumWithName(EditProperty->GetCPPType());
@@ -218,15 +298,14 @@ void UButtonSelectionPropertyWidget::UpdateEnumProperty() {
 	for (TSharedPtr<SToggleableButton>& button : Buttons) Container->RemoveSlot(button.ToSharedRef());
 	Buttons.Reset();
 
-	for (const FText& entry : Entries) {
+	if (!EnumProperty) return;
+	for (int32 index = 0; index < Entries.Num(); index++) {
+		//for (const FText& entry : Entries) {
 		TSharedPtr<SToggleableButton>& button = Buttons.AddZeroed_GetRef();
 		Container->AddSlot().Padding(5.f).AutoWidth().AttachWidget(
-			SAssignNew(button, SToggleableButton).Text(entry)
-			.OnClicked_Lambda([&]() {
-			if (EnumProperty) {
-				int64 value = EnumProperty->GetValueByName(FName(entry.ToString()));
-				SetValue(value);
-			}
+			SAssignNew(button, SToggleableButton).Text(Entries[index])
+			.OnClicked_Lambda([this, buttonValue = EnumProperty->GetValueByIndex(index)]() {
+			SetValue(buttonValue);
 			return FReply::Handled();
 		})
 		);

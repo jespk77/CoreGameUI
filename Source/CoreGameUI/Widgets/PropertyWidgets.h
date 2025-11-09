@@ -19,6 +19,7 @@ protected:
 
 	TArray<UObject*> PropertyObjects;
 	FProperty* EditProperty;
+	FProperty* ControlProperty;
 
 	template<typename PropertyType = FProperty>
 	FProperty* GetPropertyFromName(UClass* class_, const FString& propertyName) const;
@@ -29,16 +30,22 @@ protected:
 	template<typename ValueType>
 	bool SetPropertyValue(const ValueType& newValue);
 
+	template<typename ValueType = bool>
+	ValueType GetControlValue() const;
+
+	template<typename ValueType = bool>
+	bool SetControlValue(const ValueType& newValue);
+
 public:
-	void SetEditableObject(UObject* obj, const FString& propertyName);
-	void SetEditableObjects(const TArray<UObject*>& objects, const FString& propertyName);
+	void SetEditableObject(UObject* obj, const FString& propertyName, const FString* controlPropertyName = nullptr);
+	void SetEditableObjects(const TArray<UObject*>& objects, const FString& propertyName, const FString* controlPropertyName = nullptr);
 
-	void SetEditableObject(UObject* obj, FProperty* property);
-	void SetEditableObjects(const TArray<UObject*>& objects, FProperty* property);
+	void SetEditableObject(UObject* obj, FProperty* property, FProperty* controlProperty = nullptr);
+	void SetEditableObjects(const TArray<UObject*>& objects, FProperty* property, FProperty* controlProperty = nullptr);
 
-	UFUNCTION(Category = "Input Value", BlueprintNativeEvent)
+	UFUNCTION(Category = "Input Value", BlueprintCallable, BlueprintNativeEvent)
 	void SetObject(UObject* obj);
-	UFUNCTION(Category = "Input Value", BlueprintNativeEvent)
+	UFUNCTION(Category = "Input Value", BlueprintCallable, BlueprintNativeEvent)
 	void SetObjects(const TArray<UObject*>& objects);
 };
 
@@ -99,6 +106,41 @@ public:
 
 	virtual float GetValue() const override { return GetPropertyValue<float>(); }
 	virtual float SetValue(const float newValue) override;
+	virtual void SetObject_Implementation(UObject* obj) override;
+	virtual void SetObjects_Implementation(const TArray<UObject*>& objects) override;
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+UCLASS()
+class COREGAMEUI_API UToggleNumericPropertyWidget : public UToggleNumericInputWidget, public IPropertyObjectEditor {
+	GENERATED_BODY()
+
+private:
+	UFUNCTION() TArray<FString> GetPropertiesForObject() const;
+	UFUNCTION() TArray<FString> GetConditionalPropertiesForObject() const;
+
+protected:
+#if WITH_EDITORONLY_DATA
+	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly)
+	UClass* PropertyClass;
+#endif
+	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly, meta = (GetOptions = GetPropertiesForObject))
+	FString PropertyName;
+	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly, meta = (GetOptions = GetConditionalPropertiesForObject))
+	FString EditConditionPropertyName;
+
+public:
+	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadWrite)
+	bool UpdateWidgetOnTick = false;
+
+	virtual void NativePreConstruct() override;
+	virtual void NativeTick(const FGeometry& geometry, float delta) override;
+
+	virtual float GetValue() const override { return GetPropertyValue<float>(); }
+	virtual float SetValue(const float newValue) override;
+	virtual bool GetEnabled() const override { return GetControlValue(); }
+	virtual bool SetEnabled(bool enabled) override;
 	virtual void SetObject_Implementation(UObject* obj) override;
 	virtual void SetObjects_Implementation(const TArray<UObject*>& objects) override;
 };

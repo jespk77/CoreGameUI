@@ -124,9 +124,9 @@ protected:
 
 public:
 	UFUNCTION(Category = "Input Value", BlueprintCallable)
-	bool GetEnabled() const { return Enabled; }
+	virtual bool GetEnabled() const { return Enabled; }
 	UFUNCTION(Category = "Input Value", BlueprintCallable)
-	bool SetEnabled(const bool isEnabled);
+	virtual bool SetEnabled(const bool isEnabled);
 
 	UPROPERTY(Category = "Events", BlueprintAssignable)
 	FBooleanValueUpdated OnEnabledUpdated;

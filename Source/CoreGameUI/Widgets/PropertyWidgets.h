@@ -11,18 +11,25 @@ class COREGAMEUI_API UPropertyObjectEditor : public UInterface {
 class COREGAMEUI_API IPropertyObjectEditor {
 	GENERATED_BODY()
 
+private:
+	template<typename ValueType>
+	ValueType ReadValueFromPropertyInternal(FProperty* property) const;
+	template<typename ValueType>
+	bool WriteValueToPropertyInternal(FProperty* property, const ValueType& newValue);
+
 protected:
 	template<typename PropertyType = FProperty>
-	static void GetPropertiesForObjectWithType(UClass* class_, TArray<FProperty*>& properties);
+	static void GetPropertiesForObjectWithType(UStruct* type, TArray<FProperty*>& properties);
 	template<typename PropertyType = FProperty>
-	static void GetPropertyNamesForObjectWithType(UClass* class_, TArray<FString>& names);
+	static void GetPropertyNamesForObjectWithType(UStruct* type, TArray<FString>& names);
 
-	TArray<UObject*> PropertyObjects;
+	void* EditObject;
+	FArrayProperty* ArrayProperty;
 	FProperty* EditProperty;
 	FProperty* ControlProperty;
 
 	template<typename PropertyType = FProperty>
-	FProperty* GetPropertyFromName(UClass* class_, const FString& propertyName) const;
+	FProperty* GetPropertyFromName(UStruct* type, const FString& propertyName) const;
 
 	template<typename ValueType>
 	ValueType GetPropertyValue() const;
@@ -37,16 +44,45 @@ protected:
 	bool SetControlValue(const ValueType& newValue);
 
 public:
-	void SetEditableObject(UObject* obj, const FString& propertyName, const FString* controlPropertyName = nullptr);
-	void SetEditableObjects(const TArray<UObject*>& objects, const FString& propertyName, const FString* controlPropertyName = nullptr);
+	void SetEditableObject(UStruct* type, void* obj, const FString& propertyName, const FString* controlPropertyName = nullptr);
+	void SetEditableObject(void* obj, FProperty* property, FProperty* controlProperty = nullptr);
 
-	void SetEditableObject(UObject* obj, FProperty* property, FProperty* controlProperty = nullptr);
-	void SetEditableObjects(const TArray<UObject*>& objects, FProperty* property, FProperty* controlProperty = nullptr);
+	UFUNCTION(Category = "Input Value", BlueprintCallable, BlueprintNativeEvent, CustomThunk, meta = (CustomStructureParam = "obj"))
+	void SetControlledObject(const UObject* obj);
+	void SetControlledObject_Implementation(const UObject* obj) {
+		// should never be called as it uses the CustomThunk function defined below
+		check(false);
+	}
 
-	UFUNCTION(Category = "Input Value", BlueprintCallable, BlueprintNativeEvent)
-	void SetObject(UObject* obj);
-	UFUNCTION(Category = "Input Value", BlueprintCallable, BlueprintNativeEvent)
-	void SetObjects(const TArray<UObject*>& objects);
+	virtual void SetObjectWithType(UStruct* obj, void* data) { }
+
+	DECLARE_FUNCTION(execSetControlledObject) {
+		Stack.MostRecentProperty = nullptr;
+		Stack.Step(Stack.Object, nullptr);
+
+		FArrayProperty* arrayProperty = ((IPropertyObjectEditor*)Context)->ArrayProperty = CastField<FArrayProperty>(Stack.MostRecentProperty);
+		FProperty* property = arrayProperty ? arrayProperty->Inner : Stack.MostRecentProperty;
+
+		if (FStructProperty* structProperty = CastField<FStructProperty>(property)) {
+			P_FINISH;
+			P_NATIVE_BEGIN;
+			((IPropertyObjectEditor*)Context)->SetObjectWithType(structProperty->Struct, Stack.MostRecentPropertyAddress);
+			P_NATIVE_END;
+		}
+		else if (FObjectProperty* objectProperty = CastField<FObjectProperty>(property)) {
+			P_FINISH;
+			P_NATIVE_BEGIN;
+			if (arrayProperty) {
+				((IPropertyObjectEditor*)Context)->SetObjectWithType(objectProperty->GetOwnerClass(), Stack.MostRecentPropertyAddress);
+			}
+			else {
+				UObject* obj = objectProperty->GetObjectPropertyValue(Stack.MostRecentPropertyAddress);
+				((IPropertyObjectEditor*)Context)->SetObjectWithType(obj->GetClass(), obj);
+			}
+			P_NATIVE_END;
+		}
+		else Stack.bAbortingExecution = true;
+	}
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,8 +96,10 @@ private:
 
 protected:
 #if WITH_EDITORONLY_DATA
-	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "PropertyStruct == nullptr", EditConditionHides))
 	UClass* PropertyClass;
+	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "PropertyClass == nullptr", EditConditionHides))
+	UScriptStruct* PropertyStruct;
 #endif
 
 	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly, meta = (GetOptions = GetPropertiesForObject))
@@ -76,8 +114,7 @@ public:
 
 	virtual bool GetValue() const override { return GetPropertyValue<bool>(); }
 	virtual bool SetValue(const bool newValue) override;
-	virtual void SetObject_Implementation(UObject* obj) override;
-	virtual void SetObjects_Implementation(const TArray<UObject*>& objects) override;
+	virtual void SetObjectWithType(UStruct* obj, void* data) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -91,9 +128,12 @@ private:
 
 protected:
 #if WITH_EDITORONLY_DATA
-	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "PropertyStruct == nullptr", EditConditionHides))
 	UClass* PropertyClass;
+	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "PropertyClass == nullptr", EditConditionHides))
+	UScriptStruct* PropertyStruct;
 #endif
+
 	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly, meta = (GetOptions = GetPropertiesForObject))
 	FString PropertyName;
 
@@ -106,8 +146,7 @@ public:
 
 	virtual float GetValue() const override { return GetPropertyValue<float>(); }
 	virtual float SetValue(const float newValue) override;
-	virtual void SetObject_Implementation(UObject* obj) override;
-	virtual void SetObjects_Implementation(const TArray<UObject*>& objects) override;
+	virtual void SetObjectWithType(UStruct* obj, void* data) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -122,9 +161,12 @@ private:
 
 protected:
 #if WITH_EDITORONLY_DATA
-	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "PropertyStruct == nullptr", EditConditionHides))
 	UClass* PropertyClass;
+	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "PropertyClass == nullptr", EditConditionHides))
+	UScriptStruct* PropertyStruct;
 #endif
+
 	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly, meta = (GetOptions = GetPropertiesForObject))
 	FString PropertyName;
 	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly, meta = (GetOptions = GetConditionalPropertiesForObject))
@@ -141,8 +183,7 @@ public:
 	virtual float SetValue(const float newValue) override;
 	virtual bool GetEnabled() const override { return GetControlValue(); }
 	virtual bool SetEnabled(bool enabled) override;
-	virtual void SetObject_Implementation(UObject* obj) override;
-	virtual void SetObjects_Implementation(const TArray<UObject*>& objects) override;
+	virtual void SetObjectWithType(UStruct* obj, void* data) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -159,8 +200,10 @@ protected:
 	virtual void UpdateEnumProperty();
 
 #if WITH_EDITORONLY_DATA
-	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "PropertyStruct == nullptr", EditConditionHides))
 	UClass* PropertyClass;
+	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "PropertyClass == nullptr", EditConditionHides))
+	UScriptStruct* PropertyStruct;
 #endif
 
 	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly, meta = (GetOptions = GetPropertiesForObject))
@@ -177,8 +220,7 @@ public:
 	virtual int32 GetValue() const override { return GetValue_uint8(); }
 	virtual int32 SetValue(const int32 newValue) override { return SetValue_uint8((uint8)FMath::Clamp(newValue, 0, 255)); }
 	virtual uint8 SetValue_uint8(const uint8 newValue);
-	virtual void SetObject_Implementation(UObject* obj) override;
-	virtual void SetObjects_Implementation(const TArray<UObject*>& objects) override;
+	virtual void SetObjectWithType(UStruct* obj, void* data) override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -58,8 +58,9 @@ bool UBooleanInputWidget::SetValue(const bool newValue) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void UNumericInputWidget::UpdateWidget() {
-	if (Slider) Slider->SetValue(GetValue());
-	if (Text) Text->SetText(FText::FromString(FString::SanitizeFloat(GetValue())));
+	const float value = GetValue();
+	if (Slider) Slider->SetValue(value);
+	if (Text) Text->SetText(FText::FromString(FString::SanitizeFloat(value)));
 	Super::UpdateWidget();
 }
 
@@ -113,9 +114,10 @@ float UNumericInputWidget::SetStep(const float newStep) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void UToggleNumericInputWidget::UpdateWidget() {
-	if (EditCheckbox) EditCheckbox->SetIsChecked(GetEnabled() ? ECheckBoxState::Checked : ECheckBoxState::Unchecked);
-	if (Slider) Slider->SetEnabled(GetEnabled());
-	if (Text) Text->SetEnabled(GetEnabled());
+	const bool enabled = GetEnabled();
+	if (EditCheckbox) EditCheckbox->SetIsChecked(enabled ? ECheckBoxState::Checked : ECheckBoxState::Unchecked);
+	if (Slider) Slider->SetEnabled(enabled);
+	if (Text) Text->SetEnabled(enabled);
 	Super::UpdateWidget();
 }
 

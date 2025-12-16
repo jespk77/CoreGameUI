@@ -7,13 +7,13 @@ public class CoreGameUI : ModuleRules {
         PublicDependencyModuleNames.AddRange(
             [
                 "Core",
+                "BlueprintUtilities",
             ]);
 
         PrivateDependencyModuleNames.AddRange(
             [
                 "CoreUObject", "Engine",
                 "Slate", "SlateCore", "UMG",
-                "BlueprintUtilities",
             ]);
     }
 }

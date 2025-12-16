@@ -1,106 +1,5 @@
 #include "PropertyWidgets.h"
-#include "BlueprintUtilities/BlueprintFunctionLibrary/ClassUtilities.h"
 #include "CoreGameUI/Elements/ToggleableButton.h"
-
-template<typename ValueType>
-ValueType IPropertyObjectEditor::ReadValueFromPropertyInternal(FProperty* property) const {
-	if (!property || !EditObject) return ValueType();
-
-	ValueType* value = nullptr;
-	void* object;
-	if (ArrayProperty) {
-		FScriptArrayHelper helper(ArrayProperty, EditObject);
-		object = helper.GetRawPtr();
-	}
-	else object = EditObject;
-
-	value = property->ContainerPtrToValuePtr<ValueType>(object);
-	return value ? *value : ValueType();
-}
-
-template<typename ValueType>
-bool IPropertyObjectEditor::WriteValueToPropertyInternal(FProperty* property, const ValueType& newValue) {
-	if (!property || !EditObject) return false;
-
-	if (ArrayProperty) {
-		FScriptArrayHelper helper(ArrayProperty, EditObject);
-		const int32 count = helper.Num();
-		bool valueChanged = false;
-		for (int32 index = 0; index < count; index++) {
-			if (ValueType* value = property->ContainerPtrToValuePtr<ValueType>(helper.GetRawPtr(index))) {
-				const ValueType previousValue = *value;
-				*value = newValue;
-				if (previousValue != newValue) valueChanged = true;
-			}
-		}
-		return valueChanged;
-	}
-
-	if (ValueType* value = property->ContainerPtrToValuePtr<ValueType>(EditObject)) {
-		const ValueType previousValue = *value;
-		*value = newValue;
-		return previousValue != newValue;
-	}
-	else return false;
-}
-
-template<typename PropertyType>
-void IPropertyObjectEditor::GetPropertiesForObjectWithType(UStruct* type, TArray<FProperty*>& properties) {
-	UClassUtilities::GetAllPropertiesForType<PropertyType>(properties, type);
-}
-
-template<typename PropertyType>
-void IPropertyObjectEditor::GetPropertyNamesForObjectWithType(UStruct* type, TArray<FString>& names) {
-	UClassUtilities::GetAllPropertyNamesForType<PropertyType>(names, type);
-}
-
-template<typename PropertyType>
-FProperty* IPropertyObjectEditor::GetPropertyFromName(UStruct* type, const FString& propertyName) const {
-	if (type) {
-		TArray<FProperty*> properties;
-		GetPropertiesForObjectWithType<PropertyType>(type, properties);
-		for (FProperty* property : properties) {
-			if (property->GetName().Equals(propertyName, ESearchCase::IgnoreCase))
-				return property;
-		}
-	}
-
-	return nullptr;
-}
-
-template<typename ValueType>
-ValueType IPropertyObjectEditor::GetPropertyValue() const {
-	return ReadValueFromPropertyInternal<ValueType>(EditProperty);
-}
-
-template<typename ValueType>
-bool IPropertyObjectEditor::SetPropertyValue(const ValueType& newValue) {
-	return WriteValueToPropertyInternal(EditProperty, newValue);
-}
-
-template<typename ValueType>
-ValueType IPropertyObjectEditor::GetControlValue() const {
-	return ReadValueFromPropertyInternal<ValueType>(ControlProperty);
-}
-
-template<typename ValueType>
-bool IPropertyObjectEditor::SetControlValue(const ValueType& newValue) {
-	return WriteValueToPropertyInternal(ControlProperty, newValue);
-}
-
-void IPropertyObjectEditor::SetEditableObject(UStruct* type, void* obj, const FString& propertyName, const FString* controlPropertyName) {
-	SetEditableObject(obj, GetPropertyFromName(type, propertyName), controlPropertyName ? GetPropertyFromName(type, *controlPropertyName) : nullptr);
-}
-
-void IPropertyObjectEditor::SetEditableObject(void* obj, FProperty* property, FProperty* controlProperty) {
-	if (obj && !ensureAlwaysMsgf(property, TEXT("'property' can only be null when the object is null"))) return;
-
-	EditObject = obj;
-	EditProperty = property;
-	ControlProperty = controlProperty;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 
 TArray<FString> UBooleanPropertyWidget::GetPropertiesForObject() const {
 	TArray<FString> names;
@@ -246,10 +145,9 @@ TArray<FString> USelectionPropertyWidget::GetPropertiesForObject() const {
 void USelectionPropertyWidget::NativePreConstruct() {
 	if (DisplayName.IsEmpty()) DisplayName = FText::FromString(PropertyName);
 #if WITH_EDITORONLY_DATA
-	if (EditObject) {
-		if (PropertyClass) EditProperty = GetPropertyFromName<FEnumProperty>(PropertyClass, PropertyName);
-		else if (PropertyStruct) EditProperty = GetPropertyFromName<FEnumProperty>(PropertyStruct, PropertyName);
-	}
+	if (PropertyClass) EditProperty = GetPropertyFromName<FEnumProperty>(PropertyClass, PropertyName);
+	else if (PropertyStruct) EditProperty = GetPropertyFromName<FEnumProperty>(PropertyStruct, PropertyName);
+	else EditProperty = nullptr;
 #endif
 	UpdateEnumProperty();
 	Super::NativePreConstruct();

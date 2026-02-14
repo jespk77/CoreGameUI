@@ -133,6 +133,8 @@ public:
 		check(false);
 	}
 
+	template<typename ObjectType>
+	void SetObject(void* data) { SetObjectWithType(ObjectType::StaticClass(), data); }
 	virtual void SetObjectWithType(UStruct* obj, void* data) {
 		PURE_VIRTUAL(__FUNCTION__);
 	}

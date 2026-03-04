@@ -208,3 +208,37 @@ void UButtonSelectionPropertyWidget::UpdateWidget() {
 void UButtonSelectionPropertyWidget::ReleaseCustomElements() {
 	Buttons.Reset();
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+TArray<FString> UStringPropertyWidgetWidget::GetPropertiesForObject() const {
+	TArray<FString> names;
+#if WITH_EDITORONLY_DATA
+	if (PropertyClass) GetPropertyNamesForObjectWithType<FStrProperty>(PropertyClass, names);
+	else if (PropertyStruct) GetPropertyNamesForObjectWithType<FStrProperty>(PropertyStruct, names);
+#endif
+	return names;
+}
+
+void UStringPropertyWidgetWidget::NativePreConstruct() {
+	if (DisplayName.IsEmpty()) DisplayName = FText::FromString(PropertyName);
+	Super::NativePreConstruct();
+}
+
+void UStringPropertyWidgetWidget::NativeTick(const FGeometry& geometry, float delta) {
+	Super::NativeTick(geometry, delta);
+	if (UpdateWidgetOnTick) UpdateWidget();
+}
+
+FString UStringPropertyWidgetWidget::SetValue(const FString& newValue) {
+	if (GetEnabled() && SetPropertyValue(newValue)) {
+		UpdateWidget();
+		OnValueUpdated.Broadcast(GetValue());
+	}
+	return GetValue();
+}
+
+void UStringPropertyWidgetWidget::SetObjectWithType(UStruct* obj, void* data) {
+	SetEditableObject(obj, data, PropertyName);
+	UpdateWidget();
+}

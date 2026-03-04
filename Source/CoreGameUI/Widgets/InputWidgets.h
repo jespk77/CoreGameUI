@@ -181,3 +181,38 @@ protected:
 	virtual void AddCustomElements() override;
 	virtual void ReleaseCustomElements() override;
 };
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStringUpdated, const FString&, Value);
+
+UCLASS(ClassGroup = "Input Widgets")
+class COREGAMEUI_API UStringInputWidget : public UInputWidgetBase {
+	GENERATED_BODY()
+
+protected:
+	TSharedPtr<class SEditableTextBox> TextField;
+
+	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly)
+	FString Value;
+	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly)
+	int32 MaximumLength = -1;
+
+	virtual void UpdateWidget() override;
+
+	virtual void AddCustomElements() override;
+	virtual void ReleaseCustomElements() override;
+
+public:
+	UFUNCTION(Category = "Input Value", BlueprintCallable)
+	virtual FString GetValue() const { return Value; }
+	UFUNCTION(Category = "Input Value", BlueprintCallable)
+	virtual FString SetValue(const FString& newValue);
+	UFUNCTION(Category = "Input Value", BlueprintCallable)
+	int32 GetMaximumLength() const { return MaximumLength; }
+	UFUNCTION(Category = "Input Value", BlueprintCallable)
+	int32 SetMaximumLength(const int32 length);
+
+	UPROPERTY(Category = "Events", BlueprintAssignable)
+	FStringUpdated OnValueUpdated;
+};

@@ -155,3 +155,35 @@ protected:
 	virtual void AddCustomElements() override { }
 	virtual void ReleaseCustomElements() override;
 };
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+UCLASS()
+class COREGAMEUI_API UStringPropertyWidgetWidget : public UStringInputWidget, public IPropertyObjectEditor {
+	GENERATED_BODY()
+
+private:
+	UFUNCTION() TArray<FString> GetPropertiesForObject() const;
+
+protected:
+#if WITH_EDITORONLY_DATA
+	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "PropertyStruct == nullptr", EditConditionHides))
+	UClass* PropertyClass;
+	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "PropertyClass == nullptr", EditConditionHides))
+	UScriptStruct* PropertyStruct;
+#endif
+
+	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly, meta = (GetOptions = GetPropertiesForObject))
+	FString PropertyName;
+
+public:
+	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadWrite)
+	bool UpdateWidgetOnTick = false;
+
+	virtual void NativePreConstruct() override;
+	virtual void NativeTick(const FGeometry& geometry, float delta) override;
+
+	virtual FString GetValue() const override { return GetPropertyValue<FString>(); }
+	virtual FString SetValue(const FString& newValue) override;
+	virtual void SetObjectWithType(UStruct* obj, void* data) override;
+};

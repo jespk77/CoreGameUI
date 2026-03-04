@@ -1,5 +1,6 @@
 #include "InputWidgets.h"
 #include "Widgets/Input/SSlider.h"
+#include "Widgets/Input/SEditableTextBox.h"
 #include "CoreGameUI/Elements/ToggleableButton.h"
 
 TSharedRef<SWidget> UInputWidgetBase::RebuildWidget() {
@@ -227,4 +228,44 @@ void UButtonSelectionInputWidget::AddCustomElements() {
 
 void UButtonSelectionInputWidget::ReleaseCustomElements() {
 	Buttons.Reset();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void UStringInputWidget::UpdateWidget() {
+	if (TextField) {
+		TextField->SetText(FText::FromString(GetValue()));
+		TextField->SetIsReadOnly(GetEnabled());
+	}
+	Super::UpdateWidget();
+}
+
+void UStringInputWidget::AddCustomElements() {
+	Container->AddSlot().Padding(5.f).FillWidth(1.f).AttachWidget(
+		SAssignNew(TextField, SEditableTextBox)
+		.IsReadOnly(GetIsEnabled())
+		.Text(FText::FromString(Value)).MaximumLength(GetMaximumLength())
+	);
+}
+
+void UStringInputWidget::ReleaseCustomElements() {
+	TextField.Reset();
+}
+
+FString UStringInputWidget::SetValue(const FString& newValue) {
+	if (GetEnabled() && Value != newValue) {
+		Value = newValue;
+		UpdateWidget();
+		OnValueUpdated.Broadcast(Value);
+	}
+	return GetValue();
+}
+
+int32 UStringInputWidget::SetMaximumLength(const int32 length) {
+	if (GetEnabled()) {
+		MaximumLength = FMath::Max(length, -1);
+		if (TextField) TextField->SetMaximumLength(length);
+		SetValue(Value);
+	}
+	return GetMaximumLength();
 }

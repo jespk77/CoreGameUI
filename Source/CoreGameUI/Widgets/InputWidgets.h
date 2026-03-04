@@ -8,8 +8,8 @@ class COREGAMEUI_API UInputWidgetBase : public UUserWidget {
 	GENERATED_BODY()
 
 protected:
-	TSharedPtr<SHorizontalBox> Container;
-	TSharedPtr<STextBlock> Label;
+	TSharedPtr<class SHorizontalBox> Container;
+	TSharedPtr<class STextBlock> Label;
 
 	virtual TSharedRef<SWidget> RebuildWidget() final override;
 	virtual void ReleaseSlateResources(bool releaseChildren) final override;
@@ -20,8 +20,14 @@ protected:
 	virtual void UpdateWidget();
 
 public:
-	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadWrite)
 	FText DisplayName;
+
+	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadWrite)
+	bool IsReadOnly = false;
+
+	UFUNCTION(Category = "Input Value", BlueprintCallable)
+	virtual bool GetEnabled() const { return !IsReadOnly; }
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -33,7 +39,7 @@ class COREGAMEUI_API UBooleanInputWidget : public UInputWidgetBase {
 	GENERATED_BODY()
 
 protected:
-	TSharedPtr<SCheckBox> Checkbox;
+	TSharedPtr<class SCheckBox> Checkbox;
 
 	virtual void UpdateWidget() override;
 
@@ -56,15 +62,13 @@ public:
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FNumericValueUpdated, const float, Value);
 
-class SSlider;
-
 UCLASS(ClassGroup = "Input Widgets")
 class COREGAMEUI_API UNumericInputWidget : public UInputWidgetBase {
 	GENERATED_BODY()
 
 protected:
-	TSharedPtr<SSlider> Slider;
-	TSharedPtr<SEditableText> Text;
+	TSharedPtr<class SSlider> Slider;
+	TSharedPtr<class SEditableText> Text;
 
 	virtual void UpdateWidget() override;
 
@@ -112,7 +116,7 @@ class COREGAMEUI_API UToggleNumericInputWidget : public UNumericInputWidget {
 	GENERATED_BODY()
 
 protected:
-	TSharedPtr<SCheckBox> EditCheckbox;
+	TSharedPtr<class SCheckBox> EditCheckbox;
 
 	virtual void UpdateWidget() override;
 
@@ -123,9 +127,7 @@ protected:
 	virtual void ReleaseCustomElements() override;
 
 public:
-	UFUNCTION(Category = "Input Value", BlueprintCallable)
-	virtual bool GetEnabled() const { return Enabled; }
-	UFUNCTION(Category = "Input Value", BlueprintCallable)
+	virtual bool GetEnabled() const override { return !IsReadOnly ? Enabled : false; }
 	virtual bool SetEnabled(const bool isEnabled);
 
 	UPROPERTY(Category = "Events", BlueprintAssignable)
@@ -141,7 +143,7 @@ class COREGAMEUI_API USelectionInputWidget : public UInputWidgetBase {
 	GENERATED_BODY()
 
 protected:
-	TSharedPtr<STextBlock> Text;
+	TSharedPtr<class STextBlock> Text;
 
 	virtual void UpdateWidget() override;
 
@@ -167,14 +169,12 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-class SToggleableButton;
-
 UCLASS(ClassGroup = "Input Widgets")
 class COREGAMEUI_API UButtonSelectionInputWidget : public USelectionInputWidget {
 	GENERATED_BODY()
 
 protected:
-	TArray<TSharedPtr<SToggleableButton>> Buttons;
+	TArray<TSharedPtr<class SToggleableButton>> Buttons;
 
 	virtual void UpdateWidget() override;
 

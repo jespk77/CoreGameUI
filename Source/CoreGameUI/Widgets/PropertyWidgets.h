@@ -98,7 +98,7 @@ public:
 
 	virtual float GetValue() const override { return GetPropertyValue<float>(); }
 	virtual float SetValue(const float newValue) override;
-	virtual bool GetEnabled() const override { return GetControlValue(); }
+	virtual bool GetEnabled() const override { return !IsReadOnly ? GetControlValue() : false; }
 	virtual bool SetEnabled(bool enabled) override;
 	virtual void SetObjectWithType(UStruct* obj, void* data) override;
 };

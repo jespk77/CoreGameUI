@@ -21,7 +21,7 @@ void UBooleanPropertyWidget::NativeTick(const FGeometry& geometry, float delta) 
 }
 
 bool UBooleanPropertyWidget::SetValue(const bool newValue) {
-	if (SetPropertyValue(newValue)) {
+	if (GetEnabled() && SetPropertyValue(newValue)) {
 		UpdateWidget();
 		OnValueUpdated.Broadcast(newValue);
 	}
@@ -56,7 +56,7 @@ void UNumericPropertyWidget::NativeTick(const FGeometry& geometry, float delta) 
 
 float UNumericPropertyWidget::SetValue(const float newValue) {
 	const float value = FMath::Clamp(newValue, GetMinimum(), GetMaximum());
-	if (SetPropertyValue(value)) {
+	if (GetEnabled() && SetPropertyValue(value)) {
 		UpdateWidget();
 		OnValueUpdated.Broadcast(value);
 	}
@@ -100,7 +100,7 @@ void UToggleNumericPropertyWidget::NativeTick(const FGeometry& geometry, float d
 
 float UToggleNumericPropertyWidget::SetValue(const float newValue) {
 	const float value = FMath::Clamp(newValue, GetMinimum(), GetMaximum());
-	if (SetPropertyValue(value)) {
+	if (GetEnabled() && SetPropertyValue(value)) {
 		UpdateWidget();
 		OnValueUpdated.Broadcast(value);
 	}
@@ -108,6 +108,8 @@ float UToggleNumericPropertyWidget::SetValue(const float newValue) {
 }
 
 bool UToggleNumericPropertyWidget::SetEnabled(bool enabled) {
+	if(IsReadOnly) return false;
+
 	if (SetControlValue(enabled)) {
 		UpdateWidget();
 		OnEnabledUpdated.Broadcast(enabled);
@@ -159,7 +161,7 @@ void USelectionPropertyWidget::NativeTick(const FGeometry& geometry, float delta
 }
 
 uint8 USelectionPropertyWidget::SetValue_uint8(const uint8 newValue) {
-	if (SetPropertyValue(newValue)) {
+	if (GetEnabled() && SetPropertyValue(newValue)) {
 		UpdateWidget();
 		OnValueUpdated.Broadcast(Value);
 	}

@@ -6,15 +6,12 @@ void ACoreGameHUD::BeginPlay() {
 	Super::BeginPlay();
 
 	for (const TSoftClassPtr<UCoreGameWidget>& widgetClass : MainGameWidgetClasses) {
-		UCoreGameWidget* widget = CreateWidget<UCoreGameWidget>(GetOwningPlayerController(), widgetClass.LoadSynchronous());
-		widget->AddToViewport(widget->ZOrder);
-		MainGameWidgets.Add(widget);
+		if (UCoreGameWidget* widget = UCoreGameWidget::ShowWidget(GetOwningPlayerController(), widgetClass.LoadSynchronous()))
+			MainGameWidgets.Add(widget);
 	}
 
-	if (!MainMenuWidgetClass.IsNull()) {
-		MainMenuWidget = CreateWidget<UCoreMainMenuWidget>(GetOwningPlayerController(), MainMenuWidgetClass.LoadSynchronous(), "MainMenuWidget");
-		MainMenuWidget->AddToViewport(MainMenuWidget->ZOrder);
-	}
+	if (!MainMenuWidgetClass.IsNull())
+		MainMenuWidget = UCoreGameWidget::ShowWidget<APlayerController, UCoreMainMenuWidget>(GetOwningPlayerController(), MainMenuWidgetClass.LoadSynchronous(), "MainMenuWidget");
 }
 
 inline bool ACoreGameHUD::IsMainMenuVisible() const {

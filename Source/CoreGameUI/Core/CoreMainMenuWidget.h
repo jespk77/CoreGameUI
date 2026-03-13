@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Blueprint/UserWidget.h"
+#include "CoreGameWidget.h"
 #include "CoreMainMenuWidget.generated.h"
 
 UCLASS(Abstract)
-class COREGAMEUI_API UCoreMainMenuWidget : public UUserWidget {
+class COREGAMEUI_API UCoreMainMenuWidget : public UCoreGameWidget {
 	GENERATED_BODY()
 
 protected:
@@ -15,8 +15,7 @@ protected:
 	virtual void NativeDestruct() override;
 
 public:
-	UPROPERTY(Category = "Widget Properties", EditDefaultsOnly, BlueprintReadOnly, meta=(ClampMin=0))
-	int32 ZOrder = 2;
+	UCoreMainMenuWidget(const FObjectInitializer& initializer = FObjectInitializer::Get());
 
 	UFUNCTION(Category = "Common Controls", BlueprintCallable)
 	virtual bool IsOpen() const { return IsVisible(); }

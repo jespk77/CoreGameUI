@@ -13,6 +13,10 @@ void UCoreMainMenuWidget::NativeDestruct() {
 	OnVisibilityChanged.RemoveDynamic(this, &UCoreMainMenuWidget::OnVisibilityChange);
 }
 
+UCoreMainMenuWidget::UCoreMainMenuWidget(const FObjectInitializer& initializer) : Super(initializer) {
+	ZOrder = 2;
+}
+
 void UCoreMainMenuWidget::OpenMenu() {
 	SetVisibility(ESlateVisibility::Visible);
 }

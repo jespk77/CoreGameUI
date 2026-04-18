@@ -16,8 +16,6 @@ protected:
 	FText ButtonText;
 
 public:
-	static const struct FButtonStyle DefaultButtonStyle;
-
 	ULabelButton(const FObjectInitializer& initializer = FObjectInitializer::Get());
 	virtual void SynchronizeProperties() override;
 	virtual void ReleaseSlateResources(bool bReleaseChildren) override;

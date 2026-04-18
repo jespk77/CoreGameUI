@@ -1,10 +1,6 @@
 #include "LabelButton.h"
 #include "Styling/DefaultStyleCache.h"
 
-const FButtonStyle ULabelButton::DefaultButtonStyle =
-FButtonStyle(UE::Slate::Private::FDefaultStyleCache::GetRuntime().GetButtonStyle())
-.SetNormalForeground(FColor::Black).SetPressedForeground(FColor::Black).SetHoveredForeground(FColor::Black);
-
 TSharedRef<SWidget> ULabelButton::RebuildWidget() {
 	TSharedRef<SWidget> widget = Super::RebuildWidget();
 	MyButton->SetContent(SAssignNew(ButtonLabel, STextBlock)
@@ -15,6 +11,10 @@ TSharedRef<SWidget> ULabelButton::RebuildWidget() {
 
 ULabelButton::ULabelButton(const FObjectInitializer& initializer) : Super(initializer) {
 	bCanHaveMultipleChildren = false;
+
+	static const FButtonStyle DefaultButtonStyle =
+		FButtonStyle(UE::Slate::Private::FDefaultStyleCache::GetRuntime().GetButtonStyle())
+		.SetNormalForeground(FColor::Black).SetPressedForeground(FColor::Black).SetHoveredForeground(FColor::Black);
 	PRAGMA_DISABLE_DEPRECATION_WARNINGS
 		WidgetStyle = DefaultButtonStyle;
 	PRAGMA_ENABLE_DEPRECATION_WARNINGS

@@ -17,8 +17,6 @@ protected:
 	FText CheckboxText;
 
 public:
-	static const struct FCheckBoxStyle DefaultCheckboxStyle;
-
 	ULabelCheckBox(const FObjectInitializer& initializer = FObjectInitializer::Get());
 	virtual void SynchronizeProperties() override;
 	virtual void ReleaseSlateResources(bool bReleaseChildren) override;

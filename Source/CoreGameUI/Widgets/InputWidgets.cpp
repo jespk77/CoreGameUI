@@ -85,6 +85,7 @@ void UNumericInputWidget::UpdateWidget() {
 	if (Text) {
 		Text->SetText(FText::FromString(FString::SanitizeFloat(value)));
 		Text->SetEnabled(enabled);
+		Text->SetIsReadOnly(!enabled);
 	}
 
 	Super::UpdateWidget();
@@ -150,8 +151,6 @@ float UNumericInputWidget::SetStep(const float newStep) {
 void UToggleNumericInputWidget::UpdateWidget() {
 	const bool enabled = GetEnabled();
 	if (EditCheckbox) EditCheckbox->SetIsChecked(enabled ? ECheckBoxState::Checked : ECheckBoxState::Unchecked);
-	if (Slider) Slider->SetEnabled(enabled);
-	if (Text) Text->SetEnabled(enabled);
 	Super::UpdateWidget();
 }
 

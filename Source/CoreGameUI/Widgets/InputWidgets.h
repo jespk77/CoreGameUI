@@ -8,13 +8,17 @@ class COREGAMEUI_API UInputWidgetBase : public UUserWidget {
 	GENERATED_BODY()
 
 protected:
-	TSharedPtr<class SHorizontalBox> Container;
+	// The root container widget
+	TSharedPtr<class SStackBox> Widget;
 	TSharedPtr<class STextBlock> Label;
+	// All value input widgets should be added to this widget to ensure they're always on the same line, regardless of orientation
+	TSharedPtr<class SHorizontalBox> Container;
 
 	virtual TSharedRef<SWidget> RebuildWidget() final override;
 	virtual void ReleaseSlateResources(bool releaseChildren) final override;
-
 	virtual void NativePreConstruct() override;
+	virtual void SynchronizeProperties() override;
+
 	virtual void AddCustomElements() { }
 	virtual void ReleaseCustomElements() { }
 	virtual void UpdateWidget();
@@ -25,6 +29,9 @@ public:
 
 	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadWrite)
 	bool IsReadOnly = false;
+
+	UPROPERTY(Category = "Input Value", EditAnywhere, BlueprintReadWrite)
+	TEnumAsByte<EOrientation> LabelOrientation = Orient_Horizontal;
 
 	UFUNCTION(Category = "Input Value", BlueprintCallable)
 	virtual bool GetEnabled() const { return !IsReadOnly; }

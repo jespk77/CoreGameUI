@@ -4,16 +4,22 @@
 #include "CoreGameUI/Elements/ToggleableButton.h"
 
 TSharedRef<SWidget> UInputWidgetBase::RebuildWidget() {
-	SAssignNew(Container, SHorizontalBox) +
-		SHorizontalBox::Slot().Padding(5.f).AutoWidth()[
-			SAssignNew(Label, STextBlock)
-		];
+	{ // Slate widget construction, in a separate block to avoid automatic formatting issues
+		SAssignNew(Widget, SStackBox) +
+			SStackBox::Slot().Padding(5.f).AutoSize().HAlign(HAlign_Left).VAlign(VAlign_Center)[
+				SAssignNew(Label, STextBlock)
+			] +
+			SStackBox::Slot().Padding(5.f).FillSize(1.f).HAlign(HAlign_Fill).VAlign(VAlign_Fill)[
+				SAssignNew(Container, SHorizontalBox)
+			];
+	}
 
 	AddCustomElements();
-	return Container.ToSharedRef();
+	return Widget.ToSharedRef();
 }
 
 void UInputWidgetBase::ReleaseSlateResources(bool releaseChildren) {
+	Widget.Reset();
 	Label.Reset();
 	Container.Reset();
 	ReleaseCustomElements();
@@ -23,6 +29,11 @@ void UInputWidgetBase::ReleaseSlateResources(bool releaseChildren) {
 void UInputWidgetBase::NativePreConstruct() {
 	Super::NativePreConstruct();
 	UpdateWidget();
+}
+
+void UInputWidgetBase::SynchronizeProperties() {
+	Super::SynchronizeProperties();
+	if (Widget) Widget->SetOrientation(LabelOrientation);
 }
 
 void UInputWidgetBase::UpdateWidget() {

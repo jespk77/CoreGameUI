@@ -1,7 +1,8 @@
 #include "InputWidgets.h"
 #include "Widgets/Input/SSlider.h"
 #include "Widgets/Input/SEditableTextBox.h"
-#include "CoreGameUI/Elements/ToggleableButton.h"
+#include "../Elements/ToggleableButton.h"
+#include "../Utilities/CommonInputHandlingLibrary.h"
 
 TSharedRef<SWidget> UInputWidgetBase::RebuildWidget() {
 	{ // Slate widget construction, in a separate block to avoid automatic formatting issues
@@ -102,6 +103,7 @@ void UNumericInputWidget::AddCustomElements() {
 	Container->AddSlot().Padding(5.f).AutoWidth().AttachWidget(
 		SAssignNew(Text, SEditableText)
 		.IsReadOnly(GetEnabled())
+		.OnKeyCharHandler_Static(&UCommonInputHandlingLibrary::NativeBlockNonNumericCharactersHandler)
 		.OnTextCommitted_Lambda([&](const FText& text, ETextCommit::Type commitType) { SetValue(FCString::Atof(*text.ToString())); })
 	);
 }

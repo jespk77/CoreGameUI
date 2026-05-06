@@ -10,6 +10,7 @@ class COREGAMEUI_API UObjectEditorWorldWidgetItemBase : public UWorldObjectWidge
 	GENERATED_BODY()
 
 protected:
+	virtual FReply NativeOnMouseButtonDown(const FGeometry& geometry, const FPointerEvent& event) override;
 	virtual FReply NativeOnMouseButtonUp(const FGeometry& geometry, const FPointerEvent& event) override;
 
 public:

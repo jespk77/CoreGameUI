@@ -13,6 +13,7 @@ public class CoreGameUI : ModuleRules {
         PrivateDependencyModuleNames.AddRange(
             [
                 "CoreUObject", "Engine",
+                "InputCore",
                 "Slate", "SlateCore", "UMG",
             ]);
     }

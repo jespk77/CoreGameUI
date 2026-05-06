@@ -7,14 +7,14 @@ FReply UObjectEditorWorldWidgetItemBase::NativeOnMouseButtonDown(const FGeometry
 
 FReply UObjectEditorWorldWidgetItemBase::NativeOnMouseButtonUp(const FGeometry& geometry, const FPointerEvent& event) {
 	const FReply reply = Super::NativeOnMouseButtonUp(geometry, event);
-	if (!reply.IsEventHandled()) OnClicked.Broadcast(this);
+	if (!reply.IsEventHandled()) OnClicked.Broadcast(this, event.GetEffectingButton());
 	return reply;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void UObjectEditorWorldWidgetBase::NativeDestruct() {
-	DestroyCreatedWidgets();
+	Reset();
 	Super::NativeDestruct();
 }
 
@@ -33,7 +33,11 @@ void UObjectEditorWorldWidgetBase::DestroyCreatedWidgets() {
 	ConnectionWidgets.Reset();
 }
 
-void UObjectEditorWorldWidgetBase::UpdateWidgetLocations() {
+void UObjectEditorWorldWidgetBase::UpdateWidgets() {
 	for (UObjectEditorWorldWidgetItemBase* widget : ConnectionWidgets)
-		widget->UpdateWorldLocation();
+		widget->ProcessUpdate();
+}
+
+void UObjectEditorWorldWidgetBase::Reset() {
+	DestroyCreatedWidgets();
 }

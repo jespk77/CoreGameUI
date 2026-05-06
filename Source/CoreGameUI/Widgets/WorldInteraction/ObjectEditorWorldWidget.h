@@ -3,7 +3,7 @@
 #include "WorldObjectWidget.h"
 #include "ObjectEditorWorldWidget.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemWidgetClicked, UObjectEditorWorldWidgetItemBase*, ButtonWidget);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnItemWidgetClicked, UObjectEditorWorldWidgetItemBase*, Widget, const FKey&, Button);
 
 UCLASS(Abstract)
 class COREGAMEUI_API UObjectEditorWorldWidgetItemBase : public UWorldObjectWidget {
@@ -18,7 +18,7 @@ public:
 	FOnItemWidgetClicked OnClicked;
 
 	UFUNCTION(Category = "Widgets", BlueprintCallable)
-	virtual void UpdateWorldLocation() { }
+	virtual void ProcessUpdate() { }
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@ protected:
 
 	UPROPERTY(Category = "References", EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<UObjectEditorWorldWidgetItemBase> WidgetClass;
-	UPROPERTY(Category = "References", EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(Category = "References", BlueprintReadOnly)
 	TArray<UObjectEditorWorldWidgetItemBase*> ConnectionWidgets;
 
 	UFUNCTION(Category = "Widgets", BlueprintNativeEvent)
@@ -59,5 +59,8 @@ protected:
 
 public:
 	UFUNCTION(Category = "Widgets", BlueprintCallable)
-	void UpdateWidgetLocations();
+	virtual void UpdateWidgets();
+
+	UFUNCTION(Category = "Editor", BlueprintCallable)
+	virtual void Reset();
 };

@@ -36,8 +36,8 @@ protected:
 	TArray<UObjectEditorWorldWidgetItemBase*> ConnectionWidgets;
 
 	UFUNCTION(Category = "Widgets", BlueprintNativeEvent)
-	void OnWorldButtonPressed(UObjectEditorWorldWidgetItemBase* widget);
-	virtual void OnWorldButtonPressed_Implementation(UObjectEditorWorldWidgetItemBase* widget) { }
+	void OnWorldButtonPressed(UObjectEditorWorldWidgetItemBase* widget, const FKey& button);
+	virtual void OnWorldButtonPressed_Implementation(UObjectEditorWorldWidgetItemBase* widget, const FKey& button) { }
 
 	virtual void FinishWidgetCreation(UObjectEditorWorldWidgetItemBase* widget);
 
